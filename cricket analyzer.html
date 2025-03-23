@@ -2,559 +2,167 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Cricket Chase Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Match Similarity</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            background-color: #f4f4f4;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            background: white;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            flex-grow: 1;
-            box-sizing: border-box;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            font-size: 1.8em;
-            margin: 0 0 10px;
-        }
-        label {
-            display: block;
-            margin: 5px 0 2px;
-            font-weight: bold;
-            font-size: 1em;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            font-size: 1em;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        select {
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><polygon points="0,0 12,0 6,6" fill="black"/></svg>') no-repeat right 10px center;
-            background-size: 12px;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            flex: 1;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 1em;
-            min-width: 100px;
-            touch-action: manipulation;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #resetBtn {
-            background-color: #f44336;
-        }
-        #resetBtn:hover {
-            background-color: #d32f2f;
-        }
-        #downloadBtn {
-            background-color: #2196F3;
-        }
-        #downloadBtn:hover {
-            background-color: #1976D2;
-        }
-        #output {
-            background: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            min-height: 200px;
-            overflow-y: auto;
-            overflow-x: auto;
-            flex-grow: 1;
-            -webkit-overflow-scrolling: touch;
-        }
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Arial, sans-serif;
-            font-size: 1em;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-        th:hover {
-            background-color: #45a049;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #ddd;
-        }
-        .filter-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .filter-group select {
-            flex: 1;
-            min-width: 150px;
-        }
-        @media (max-width: 600px) {
-            body { padding: 5px; }
-            .container { padding: 10px; }
-            h1 { font-size: 1.5em; }
-            input, select, button { padding: 10px; font-size: 0.95em; }
-            .button-group, .filter-group { flex-direction: column; gap: 8px; }
-            button { padding: 12px; font-size: 0.95em; }
-            #output { font-size: 0.9em; min-height: 150px; }
-            th, td { font-size: 0.9em; padding: 6px; }
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        input, button { margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
     </style>
+    <!-- XLSX.js library for reading Excel files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Cricket Chase Analyzer</h1>
-        <label for="fileInput">Upload Excel File:</label>
-        <input type="file" id="fileInput" accept=".xlsx, .xls">
-        
-        <label for="scoreInput">Score/Wickets (e.g., 20/1):</label>
-        <input type="text" id="scoreInput" placeholder="Enter score/wickets">
-        
-        <label for="overSelect">Select Over:</label>
-        <select id="overSelect">
-            <option value="">-- Select Over --</option>
-        </select>
-        
-        <label for="rangeSelect">20-Over Score Range (Optional):</label>
-        <select id="rangeSelect">
-            <option value="">-- All Ranges --</option>
-            <option value="120-129">120-129</option>
-            <option value="130-139">130-139</option>
-            <option value="140-149">140-149</option>
-            <option value="150-159">150-159</option>
-            <option value="160-169">160-169</option>
-            <option value="170-179">170-179</option>
-            <option value="180-189">180-189</option>
-            <option value="190-199">190-199</option>
-            <option value="200+">200+</option>
-        </select>
-        
-        <div class="button-group">
-            <button onclick="processInput()">Submit</button>
-            <button id="resetBtn" onclick="resetForm()">Reset</button>
-            <button id="downloadBtn" onclick="downloadResults()" disabled>Download Results</button>
-        </div>
-        
-        <div id="output">Upload your Excel file to start.</div>
+        <h1>Cricket Match Similarity</h1>
+        <form id="matchForm">
+            <label for="excelFile">Upload Excel File:</label>
+            <input type="file" id="excelFile" name="excelFile" accept=".xlsx" required><br>
+
+            <label for="scores">Enter Ongoing Match Scores (1-20 overs):</label>
+            <input type="text" id="scores" name="scores" placeholder="e.g., 45/2, 78/3, ..." required><br>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <h2>Euclidean Distance Results</h2>
+        <table id="euclideanResults">
+            <thead>
+                <tr>
+                    <th>6 Overs</th>
+                    <th>10 Overs</th>
+                    <th>15 Overs</th>
+                    <th>20 Overs</th>
+                    <th>Result</th>
+                    <th>26 Overs</th>
+                    <th>30 Overs</th>
+                    <th>35 Overs</th>
+                    <th>40 Overs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results will be populated here -->
+            </tbody>
+        </table>
+
+        <h2>Cosine Similarity Results</h2>
+        <table id="cosineResults">
+            <thead>
+                <tr>
+                    <th>6 Overs</th>
+                    <th>10 Overs</th>
+                    <th>15 Overs</th>
+                    <th>20 Overs</th>
+                    <th>Result</th>
+                    <th>26 Overs</th>
+                    <th>30 Overs</th>
+                    <th>35 Overs</th>
+                    <th>40 Overs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results will be populated here -->
+            </tbody>
+        </table>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" 
-            onerror="alert('Failed to load SheetJS. Check internet or use a local copy.');"></script>
     <script>
-        let matches = [];
-        let filteredMatches = [];
-        let firstInningsDone = false;
-        let scoreRange = null;
-        let targetRuns = null;
-        let lastData = null;
-        let allYears = [];
-        let allScoreRanges = [];
-
-        const overSelect = document.getElementById('overSelect');
-        
-        function populateOverSelect() {
-            overSelect.innerHTML = '<option value="">-- Select Over --</option>';
-            for (let i = 1; i <= 40; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.text = `${i}th Over`;
-                overSelect.appendChild(option);
+        // Function to calculate Euclidean Distance
+        function euclideanDistance(a, b) {
+            let sum = 0;
+            for (let i = 0; i < a.length; i++) {
+                sum += Math.pow(a[i] - b[i], 2);
             }
-            overSelect.style.display = 'none';
-            overSelect.offsetHeight;
-            overSelect.style.display = 'block';
+            return Math.sqrt(sum);
         }
-        populateOverSelect();
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                alert('No file selected.');
-                return;
+        // Function to calculate Cosine Similarity
+        function cosineSimilarity(a, b) {
+            let dotProduct = 0;
+            let magnitudeA = 0;
+            let magnitudeB = 0;
+            for (let i = 0; i < a.length; i++) {
+                dotProduct += a[i] * b[i];
+                magnitudeA += Math.pow(a[i], 2);
+                magnitudeB += Math.pow(b[i], 2);
             }
+            magnitudeA = Math.sqrt(magnitudeA);
+            magnitudeB = Math.sqrt(magnitudeB);
+            return dotProduct / (magnitudeA * magnitudeB);
+        }
+
+        // Function to process the Excel file
+        function processExcel(file, scores) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    matches = XLSX.utils.sheet_to_json(sheet);
-                    filteredMatches = matches;
-                    document.getElementById('output').textContent = `File loaded successfully! ${matches.length} matches found.`;
-                    console.log("Loaded matches:", matches);
-                } catch (err) {
-                    alert('Error loading file: ' + err.message);
-                    document.getElementById('output').textContent = "Error loading file: " + err.message;
-                }
-            };
-            reader.onerror = function() {
-                alert('Failed to read file.');
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+                // Calculate Euclidean Distance and Cosine Similarity
+                const euclideanResults = [];
+                const cosineResults = [];
+
+                jsonData.forEach(row => {
+                    const matchScores = [];
+                    for (let i = 1; i <= 20; i++) {
+                        const score = row[`${i}over`].split('/');
+                        matchScores.push(parseInt(score[0])); // Use only runs for similarity
+                    }
+
+                    const euclideanDist = euclideanDistance(scores, matchScores);
+                    const cosineSim = cosineSimilarity(scores, matchScores);
+
+                    euclideanResults.push({ distance: euclideanDist, row });
+                    cosineResults.push({ similarity: cosineSim, row });
+                });
+
+                // Sort and get top 10 results
+                euclideanResults.sort((a, b) => a.distance - b.distance);
+                cosineResults.sort((a, b) => b.similarity - a.similarity);
+
+                const topEuclidean = euclideanResults.slice(0, 10);
+                const topCosine = cosineResults.slice(0, 10);
+
+                // Display results
+                displayResults('euclideanResults', topEuclidean);
+                displayResults('cosineResults', topCosine);
             };
             reader.readAsArrayBuffer(file);
+        }
+
+        // Function to display results in the table
+        function displayResults(tableId, results) {
+            const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            table.innerHTML = '';
+            results.forEach(result => {
+                const row = table.insertRow();
+                const rowData = result.row;
+                const columns = ['6over', '10over', '15over', '20over', 'result', '26over', '30over', '35over', '40over'];
+                columns.forEach(col => {
+                    const cell = row.insertCell();
+                    cell.textContent = rowData[col];
+                });
+            });
+        }
+
+        // Handle form submission
+        document.getElementById('matchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const file = document.getElementById('excelFile').files[0];
+            const scores = document.getElementById('scores').value.split(',').map(s => parseInt(s.trim().split('/')[0]));
+
+            if (file && scores.length === 20) {
+                processExcel(file, scores);
+            } else {
+                alert('Please upload a valid Excel file and enter scores for 20 overs.');
+            }
         });
-
-        function parseScore(scoreWickets) {
-            const parts = scoreWickets.split('/');
-            if (parts.length !== 2) return [null, null];
-            const runs = parseInt(parts[0]);
-            const wickets = parseInt(parts[1]);
-            if (isNaN(runs) || isNaN(wickets) || wickets < 0 || wickets > 10) return [null, null];
-            return [runs, wickets];
-        }
-
-        function parseRange(rangeStr) {
-            if (!rangeStr) return null;
-            if (rangeStr === "200+") return [200, Infinity];
-            const [min, max] = rangeStr.split('-').map(Number);
-            return [min, max];
-        }
-
-        function compareScores(scoreA, scoreB) {
-            if (!scoreA || !scoreB) return scoreA ? 1 : -1;
-            const [runsA] = scoreA.split('/').map(Number);
-            const [runsB] = scoreB.split('/').map(Number);
-            return runsA - runsB;
-        }
-
-        function calculateDifference(scoreLater, scoreEarlier) {
-            if (!scoreLater || !scoreEarlier) return "N/A";
-            const [runsLater, wicketsLater] = scoreLater.split('/').map(Number);
-            const [runsEarlier, wicketsEarlier] = scoreEarlier.split('/').map(Number);
-            const runDiff = runsLater - runsEarlier;
-            const wicketDiff = wicketsLater - wicketsEarlier;
-            return `${runDiff}/${wicketDiff}`;
-        }
-
-        function processInput() {
-            const scoreWickets = document.getElementById('scoreInput').value.trim();
-            const over = parseInt(document.getElementById('overSelect').value);
-            const rangeStr = document.getElementById('rangeSelect').value;
-            const [runs, wickets] = parseScore(scoreWickets);
-            const output = document.getElementById('output');
-
-            if (!scoreWickets || isNaN(over) || runs === null || wickets === null) {
-                output.textContent = "Please enter valid score/wickets (e.g., '20/1') and select an over.";
-                return;
-            }
-            if (matches.length === 0) {
-                output.textContent = "Please upload an Excel file first.";
-                return;
-            }
-
-            let compareData = matches;
-            const selectedRange = parseRange(rangeStr);
-
-            if (over <= 20) {
-                if (over === 20) {
-                    firstInningsDone = true;
-                    targetRuns = runs;
-                    scoreRange = selectedRange || getScoreRange(runs);
-                }
-            } else {
-                if (!firstInningsDone) {
-                    const targetInput = prompt("Please enter the final score after 20 overs (e.g., '142/3'):");
-                    if (!targetInput) {
-                        output.textContent = "Target score required for 2nd innings analysis.";
-                        return;
-                    }
-                    const [targetRunsInput, targetWickets] = parseScore(targetInput);
-                    if (targetRunsInput === null || targetWickets === null) {
-                        output.textContent = "Invalid target score format. Use 'runs/wickets' (e.g., '142/3').";
-                        return;
-                    }
-                    firstInningsDone = true;
-                    targetRuns = targetRunsInput;
-                    scoreRange = selectedRange || getScoreRange(targetRuns);
-                }
-                compareData = filteredMatches;
-            }
-
-            if (selectedRange) {
-                compareData = compareData.filter(match => {
-                    const score = match['20over'];
-                    if (!score) return false;
-                    const [matchRuns] = score.split('/').map(Number);
-                    return matchRuns >= selectedRange[0] && (selectedRange[1] === Infinity ? true : matchRuns <= selectedRange[1]);
-                });
-                scoreRange = selectedRange;
-            } else if (over > 20 && scoreRange) {
-                compareData = compareData.filter(match => {
-                    const score = match['20over'];
-                    if (!score) return false;
-                    const [matchRuns] = score.split('/').map(Number);
-                    return matchRuns >= scoreRange[0] && (selectedRange[1] === Infinity ? true : matchRuns <= selectedRange[1]);
-                });
-            }
-
-            const overKey = `${over}over`;
-            const yearMatches = {};
-            let totalMatches = 0;
-            let runDifference = null;
-
-            if (over <= 20) {
-                compareData.forEach((match, index) => {
-                    const score = match[overKey];
-                    if (!score) return;
-                    const [histRuns, histWickets] = score.split('/').map(Number);
-                    if (histRuns === runs && histWickets === wickets) {
-                        const year = match['year'];
-                        if (!yearMatches[year]) yearMatches[year] = [];
-                        yearMatches[year].push({ match, index });
-                        totalMatches++;
-                    }
-                });
-            } else {
-                runDifference = targetRuns - runs;
-                compareData.forEach((match, index) => {
-                    const twentyOverScore = match['20over'];
-                    const currentOverScore = match[overKey];
-                    if (twentyOverScore && currentOverScore) {
-                        const [twentyRuns] = twentyOverScore.split('/').map(Number);
-                        const [currentRuns] = currentOverScore.split('/').map(Number);
-                        if (twentyRuns - currentRuns === runDifference) {
-                            const year = match['year'];
-                            if (!yearMatches[year]) yearMatches[year] = [];
-                            yearMatches[year].push({ match, index });
-                            totalMatches++;
-                        }
-                    }
-                });
-            }
-
-            // Prepare filter options
-            allYears = [...new Set(Object.keys(yearMatches).map(Number))].sort((a, b) => a - b);
-            allScoreRanges = [];
-            compareData.forEach(match => {
-                const score = match['20over'];
-                if (score) {
-                    const [runs] = score.split('/').map(Number);
-                    const range = getScoreRange(runs);
-                    const rangeStr = range[1] === Infinity ? '200+' : `${range[0]}-${range[1]}`;
-                    if (!allScoreRanges.includes(rangeStr)) allScoreRanges.push(rangeStr);
-                }
-            });
-            allScoreRanges.sort((a, b) => {
-                if (a === '200+') return 1;
-                if (b === '200+') return -1;
-                return parseInt(a.split('-')[0]) - parseInt(b.split('-')[0]);
-            });
-
-            // Generate output
-            let html = `<p>Analysis for ${runs}/${wickets} after Over ${over}<br>`;
-            if (over > 20 || selectedRange) {
-                html += `20-Over Score Range: ${rangeStr || `${scoreRange[0]}-${scoreRange[1] === Infinity ? '200+' : scoreRange[1]}`}<br>`;
-            }
-            if (over > 20 && runDifference !== null) {
-                html += `Run Difference (20ov - ${over}ov): ${runDifference}<br>`;
-            }
-            html += `Total matches${over <= 20 ? ` with exactly ${runs}/${wickets}` : ` with run difference ${runDifference}`}: ${totalMatches}</p>`;
-
-            if (totalMatches === 0) {
-                html += `<p>No matches found${over <= 20 ? ` with exactly ${runs}/${wickets}` : ` with run difference ${runDifference}`} after Over ${over}${selectedRange ? ` within ${rangeStr}` : ''}.</p>`;
-            } else {
-                html += '<div class="filter-group">';
-                html += '<select id="yearFilter" onchange="applyFilters()"><option value="">All Years</option>';
-                allYears.forEach(year => html += `<option value="${year}">${year}</option>`);
-                html += '</select>';
-                html += '<select id="scoreRangeFilter" onchange="applyFilters()"><option value="">All Score Ranges</option>';
-                allScoreRanges.forEach(range => html += `<option value="${range}">${range}</option>`);
-                html += '</select></div>';
-
-                html += '<div class="table-container"><table><thead><tr>';
-                const headers = over <= 20 ? 
-                    ["Year", ...(over < 6 ? ["6ov"] : []), ...(over < 10 ? ["10ov"] : []), ...(over < 15 ? ["15ov"] : []), "20ov", "Result"] :
-                    ["Year", ...(over < 26 ? ["26ov"] : []), ...(over < 30 ? ["30ov"] : []), ...(over < 35 ? ["35ov"] : []), `${over}ov`, "20ov", "40ov", "15ov-6ov", "20ov-6ov", "Result"];
-                
-                headers.forEach(header => html += `<th>${header}</th>`);
-                html += '</tr></thead><tbody id="tableBody">';
-
-                const sortedRows = [];
-                Object.keys(yearMatches).sort().forEach(year => {
-                    yearMatches[year].forEach(({ match }) => {
-                        sortedRows.push({ year, match });
-                    });
-                });
-
-                sortedRows.sort((a, b) => a.year - b.year);
-                lastData = [];
-
-                sortedRows.forEach(({ year, match }) => {
-                    const rowData = { Year: year };
-                    if (over <= 20) {
-                        if (over < 6) rowData['6ov'] = match['6over'] || "N/A";
-                        if (over < 10) rowData['10ov'] = match['10over'] || "N/A";
-                        if (over < 15) rowData['15ov'] = match['15over'] || "N/A";
-                        rowData['20ov'] = match['20over'] || "N/A";
-                        rowData['Result'] = match['result'] || "unknown";
-                    } else {
-                        if (over < 26) rowData['26ov'] = match['26over'] || "N/A";
-                        if (over < 30) rowData['30ov'] = match['30over'] || "N/A";
-                        if (over < 35) rowData['35ov'] = match['35over'] || "N/A";
-                        rowData[`${over}ov`] = match[overKey] || "N/A";
-                        rowData['20ov'] = match['20over'] || "N/A";
-                        rowData['40ov'] = match['40over'] || "N/A";
-                        rowData['15ov-6ov'] = calculateDifference(match['15over'], match['6over']);
-                        rowData['20ov-6ov'] = calculateDifference(match['20over'], match['6over']);
-                        rowData['Result'] = match['result'] || "unknown";
-                    }
-                    lastData.push(rowData);
-                });
-
-                html += generateTableRows(lastData);
-                html += '</tbody></table></div>';
-            }
-
-            output.innerHTML = html;
-            document.getElementById('downloadBtn').disabled = totalMatches === 0;
-            addSortFunctionality();
-        }
-
-        function generateTableRows(data) {
-            let html = '';
-            data.forEach(row => {
-                html += '<tr>';
-                Object.values(row).forEach(value => html += `<td>${value}</td>`);
-                html += '</tr>';
-            });
-            return html;
-        }
-
-        function applyFilters() {
-            const yearFilter = document.getElementById('yearFilter').value;
-            const scoreRangeFilter = document.getElementById('scoreRangeFilter').value;
-            const filteredData = lastData.filter(row => {
-                const yearMatch = !yearFilter || row.Year == yearFilter;
-                const rangeMatch = !scoreRangeFilter || (() => {
-                    const [runs] = (row['20ov'] || '0/0').split('/').map(Number);
-                    const range = parseRange(scoreRangeFilter);
-                    return runs >= range[0] && (range[1] === Infinity ? true : runs <= range[1]);
-                })();
-                return yearMatch && rangeMatch;
-            });
-            document.getElementById('tableBody').innerHTML = generateTableRows(filteredData);
-            addSortFunctionality();
-        }
-
-        function addSortFunctionality() {
-            const table = document.querySelector('table');
-            if (!table) return;
-
-            const headers = table.querySelectorAll('th');
-            headers.forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    const tbody = table.querySelector('tbody');
-                    const rows = Array.from(tbody.querySelectorAll('tr'));
-                    const isAscending = header.dataset.sort !== 'asc';
-                    
-                    rows.sort((a, b) => {
-                        const aValue = a.cells[index].textContent;
-                        const bValue = b.cells[index].textContent;
-                        
-                        if (header.textContent === 'Year') {
-                            return isAscending ? 
-                                Number(aValue) - Number(bValue) : 
-                                Number(bValue) - Number(aValue);
-                        }
-                        
-                        if (aValue.includes('/') && bValue.includes('/')) {
-                            const [runsA] = aValue.split('/').map(Number);
-                            const [runsB] = bValue.split('/').map(Number);
-                            return isAscending ? runsA - runsB : runsB - runsA;
-                        }
-                        
-                        return isAscending ? 
-                            aValue.localeCompare(bValue) : 
-                            bValue.localeCompare(aValue);
-                    });
-
-                    headers.forEach(h => delete h.dataset.sort);
-                    header.dataset.sort = isAscending ? 'asc' : 'desc';
-                    
-                    tbody.innerHTML = '';
-                    rows.forEach(row => tbody.appendChild(row));
-                });
-            });
-        }
-
-        function resetForm() {
-            matches = [];
-            filteredMatches = [];
-            firstInningsDone = false;
-            scoreRange = null;
-            targetRuns = null;
-            lastData = null;
-            allYears = [];
-            allScoreRanges = [];
-            document.getElementById('fileInput').value = '';
-            document.getElementById('scoreInput').value = '';
-            document.getElementById('overSelect').value = '';
-            document.getElementById('rangeSelect').value = '';
-            document.getElementById('output').textContent = "Upload your Excel file to start.";
-            document.getElementById('downloadBtn').disabled = true;
-            populateOverSelect();
-        }
-
-        function downloadResults() {
-            if (!lastData) return;
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(lastData);
-            XLSX.utils.book_append_sheet(wb, ws, "Results");
-            XLSX.writeFile(wb, `Cricket_Analysis_${new Date().toISOString().slice(0,10)}.xlsx`);
-        }
-
-        function getScoreRange(runs) {
-            if (runs >= 200) return [200, Infinity];
-            const rangeStart = Math.floor(runs / 10) * 10;
-            return [rangeStart, rangeStart + 9];
-        }
     </script>
 </body>
 </html>
