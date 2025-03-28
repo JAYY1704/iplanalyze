@@ -2,167 +2,856 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Match Similarity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Cricket Match Analyzer</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        input, button { margin: 10px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.classic-mode {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+        }
+        body.dark-mode {
+            background: #2b2b2b;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+            box-sizing: border-box;
+            position: relative;
+        }
+        body.classic-mode .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+        }
+        body.dark-mode .container {
+            background: #333333;
+            color: #e0e0e0;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .theme-toggle select {
+            padding: 6px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            border: 2px solid;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        body.classic-mode .theme-toggle select {
+            border-color: #ddd;
+        }
+        body.dark-mode .theme-toggle select {
+            border-color: #4a4a4a;
+            background: #404040;
+            color: #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.8em;
+            margin: 0 0 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        body.classic-mode h1 {
+            color: #1e3c72;
+        }
+        body.dark-mode h1 {
+            color: #cccccc;
+        }
+        label {
+            display: block;
+            margin: 5px 0 2px;
+            font-weight: 600;
+            font-size: 1em;
+        }
+        body.classic-mode label {
+            color: #2a5298;
+        }
+        body.dark-mode label {
+            color: #cccccc;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-size: 0.95em;
+            border-radius: 6px;
+            border: 2px solid;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+        }
+        body.classic-mode input,
+        body.classic-mode select {
+            border-color: #ddd;
+            background: #f9f9f9;
+        }
+        body.dark-mode input,
+        body.dark-mode select {
+            border-color: #4a4a4a;
+            background: #404040;
+            color: #e0e0e0;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 5px rgba(42, 82, 152, 0.5);
+        }
+        body.dark-mode input:focus,
+        body.dark-mode select:focus {
+            border-color: #ffffff;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-direction: column;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 1em;
+            min-width: 100px;
+            transition: transform 0.2s, background 0.3s;
+        }
+        body.classic-mode button {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        body.dark-mode button {
+            background: #ffffff;
+            color: #2b2b2b;
+        }
+        body.classic-mode button:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+        }
+        body.dark-mode button:hover {
+            background: #e0e0e0;
+        }
+        body.classic-mode #resetBtn {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        body.dark-mode #resetBtn {
+            background: #ff5555;
+            color: #2b2b2b;
+        }
+        body.classic-mode #resetBtn:hover {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+        }
+        body.dark-mode #resetBtn:hover {
+            background: #e64444;
+        }
+        body.classic-mode #downloadBtn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        body.dark-mode #downloadBtn {
+            background: #55aaff;
+            color: #2b2b2b;
+        }
+        body.classic-mode #downloadBtn:hover {
+            background: linear-gradient(135deg, #1976D2, #0d47a1);
+        }
+        body.dark-mode #downloadBtn:hover {
+            background: #4499ee;
+        }
+        body.classic-mode #viewDetailsBtn {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+        body.dark-mode #viewDetailsBtn {
+            background: #ffdd55;
+            color: #2b2b2b;
+        }
+        body.classic-mode #viewDetailsBtn:hover {
+            background: linear-gradient(135deg, #F57C00, #e65100);
+        }
+        body.dark-mode #viewDetailsBtn:hover {
+            background: #eecc44;
+        }
+        #viewDetailsBtn:disabled, #downloadBtn:disabled {
+            background: #666666;
+            cursor: not-allowed;
+            color: #b0b0b0;
+        }
+        #output {
+            padding: 15px;
+            border: 2px solid;
+            border-radius: 6px;
+            min-height: 200px;
+            overflow-y: auto;
+            overflow-x: auto;
+            flex-grow: 1;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        body.classic-mode #output {
+            background: #fff;
+            border-color: #ddd;
+        }
+        body.dark-mode #output {
+            background: #333333;
+            border-color: #4a4a4a;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        th, td {
+            border: 1px solid;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        body.classic-mode th,
+        body.classic-mode td {
+            border-color: #ddd;
+        }
+        body.dark-mode th,
+        body.dark-mode td {
+            border-color: #4a4a4a;
+        }
+        th {
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        body.classic-mode th {
+            background: #2a5298;
+            color: white;
+        }
+        body.dark-mode th {
+            background: #404040;
+            color: #e0e0e0;
+        }
+        body.classic-mode tr:nth-child(even) {
+            background: #f5f6fa;
+        }
+        body.dark-mode tr:nth-child(even) {
+            background: #3a3a3a;
+        }
+        .match-6ov { background: #b3e5fc; }
+        .match-10ov { background: #c8e6c9; }
+        .match-15ov { background: #ffecb3; }
+        .match-20ov { background: #f8bbd0; }
+        .match-10-6 { background: #ffccbc; }
+        .match-15-10 { background: #dcedc8; }
+        .match-15-6 { background: #d1c4e9; }
+        .match-20-6 { background: #b2dfdb; }
+        .match-20-10 { background: #f0f4c3; }
+        body.dark-mode .match-6ov { background: #4a90e2; }
+        body.dark-mode .match-10ov { background: #66bb6a; }
+        body.dark-mode .match-15ov { background: #ffa726; }
+        body.dark-mode .match-20ov { background: #ec407a; }
+        body.dark-mode .match-10-6 { background: #ff8a65; }
+        body.dark-mode .match-15-10 { background: #aed581; }
+        body.dark-mode .match-15-6 { background: #7e57c2; }
+        body.dark-mode .match-20-6 { background: #26a69a; }
+        body.dark-mode .match-20-10 { background: #9ccc65; }
+        .match-6ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #b3e5fc 50%); }
+        .match-10ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #c8e6c9 50%); }
+        .match-15ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #ffecb3 50%); }
+        .match-20ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #f8bbd0 50%); }
+        .match-10-6-wickets { background: linear-gradient(to right, #ff6f61 50%, #ffccbc 50%); }
+        .match-15-10-wickets { background: linear-gradient(to right, #ff6f61 50%, #dcedc8 50%); }
+        .match-15-6-wickets { background: linear-gradient(to right, #ff6f61 50%, #d1c4e9 50%); }
+        .match-20-6-wickets { background: linear-gradient(to right, #ff6f61 50%, #b2dfdb 50%); }
+        .match-20-10-wickets { background: linear-gradient(to right, #ff6f61 50%, #f0f4c3 50%); }
+        body.dark-mode .match-6ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #4a90e2 50%); }
+        body.dark-mode .match-10ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #66bb6a 50%); }
+        body.dark-mode .match-15ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #ffa726 50%); }
+        body.dark-mode .match-20ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #ec407a 50%); }
+        body.dark-mode .match-10-6-wickets { background: linear-gradient(to right, #d32f2f 50%, #ff8a65 50%); }
+        body.dark-mode .match-15-10-wickets { background: linear-gradient(to right, #d32f2f 50%, #aed581 50%); }
+        body.dark-mode .match-15-6-wickets { background: linear-gradient(to right, #d32f2f 50%, #7e57c2 50%); }
+        body.dark-mode .match-20-6-wickets { background: linear-gradient(to right, #d32f2f 50%, #26a69a 50%); }
+        body.dark-mode .match-20-10-wickets { background: linear-gradient(to right, #d32f2f 50%, #9ccc65 50%); }
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            border-radius: 6px;
+            flex-direction: column;
+        }
+        body.classic-mode .filter-group {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        body.dark-mode .filter-group {
+            background: #333333;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 95%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+        }
+        body.classic-mode .modal-content {
+            background: #fff;
+            color: #333;
+        }
+        body.dark-mode .modal-content {
+            background: #333333;
+            color: #e0e0e0;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        body.classic-mode .modal-content h2 {
+            color: #1e3c72;
+        }
+        body.dark-mode .modal-content h2 {
+            color: #ffffff;
+        }
+        .year-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .modal-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        @media (max-width: 600px) {
+            body { padding: 5px; }
+            .container { padding: 10px; }
+            h1 { font-size: 1.4em; }
+            label { font-size: 0.9em; }
+            input, select, button { padding: 8px; font-size: 0.85em; }
+            .button-group { gap: 8px; }
+            #output { min-height: 150px; padding: 10px; }
+            th, td { font-size: 0.8em; padding: 6px; }
+            .modal-content { padding: 10px; max-width: 98%; }
+        }
     </style>
-    <!-- XLSX.js library for reading Excel files -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="classic-mode">
     <div class="container">
-        <h1>Cricket Match Similarity</h1>
-        <form id="matchForm">
-            <label for="excelFile">Upload Excel File:</label>
-            <input type="file" id="excelFile" name="excelFile" accept=".xlsx" required><br>
-
-            <label for="scores">Enter Ongoing Match Scores (1-20 overs):</label>
-            <input type="text" id="scores" name="scores" placeholder="e.g., 45/2, 78/3, ..." required><br>
-
-            <button type="submit">Submit</button>
-        </form>
-
-        <h2>Euclidean Distance Results</h2>
-        <table id="euclideanResults">
-            <thead>
-                <tr>
-                    <th>6 Overs</th>
-                    <th>10 Overs</th>
-                    <th>15 Overs</th>
-                    <th>20 Overs</th>
-                    <th>Result</th>
-                    <th>26 Overs</th>
-                    <th>30 Overs</th>
-                    <th>35 Overs</th>
-                    <th>40 Overs</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Results will be populated here -->
-            </tbody>
-        </table>
-
-        <h2>Cosine Similarity Results</h2>
-        <table id="cosineResults">
-            <thead>
-                <tr>
-                    <th>6 Overs</th>
-                    <th>10 Overs</th>
-                    <th>15 Overs</th>
-                    <th>20 Overs</th>
-                    <th>Result</th>
-                    <th>26 Overs</th>
-                    <th>30 Overs</th>
-                    <th>35 Overs</th>
-                    <th>40 Overs</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Results will be populated here -->
-            </tbody>
-        </table>
+        <div class="theme-toggle">
+            <select id="themeSelect" onchange="toggleTheme()">
+                <option value="classic-mode">Classic Mode</option>
+                <option value="dark-mode">Dark Mode</option>
+            </select>
+        </div>
+        <h1>Cricket Match Analyzer</h1>
+        
+        <label for="score6ov">6 Overs Score/Wickets (e.g., 20/1):</label>
+        <input type="text" id="score6ov" placeholder="Enter 6 overs score/wickets">
+        
+        <label for="score10ov">10 Overs Score/Wickets (e.g., 50/2):</label>
+        <input type="text" id="score10ov" placeholder="Enter 10 overs score/wickets">
+        
+        <label for="score15ov">15 Overs Score/Wickets (e.g., 100/3):</label>
+        <input type="text" id="score15ov" placeholder="Enter 15 overs score/wickets">
+        
+        <label for="score20ov">20 Overs Score/Wickets (e.g., 150/4):</label>
+        <input type="text" id="score20ov" placeholder="Enter 20 overs score/wickets">
+        
+        <div class="button-group">
+            <button onclick="processInput()">Submit</button>
+            <button id="resetBtn" onclick="resetForm()">Reset</button>
+            <button id="downloadBtn" onclick="downloadResults()" disabled>Download Results</button>
+        </div>
+        
+        <div id="output">Loading data from GitHub...</div>
     </div>
 
+    <div id="yearFilterModal" class="modal">
+        <div class="modal-content">
+            <h2>Select Years</h2>
+            <div id="yearCheckboxes"></div>
+            <div class="modal-buttons">
+                <button onclick="applyYearFilter()">OK</button>
+                <button onclick="closeYearFilterModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullDetailsModal" class="modal">
+        <div class="modal-content">
+            <h2>Full Match Details</h2>
+            <div id="fullDetailsOutput" class="table-container"></div>
+            <div class="modal-buttons">
+                <button onclick="closeFullDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
-        // Function to calculate Euclidean Distance
-        function euclideanDistance(a, b) {
-            let sum = 0;
-            for (let i = 0; i < a.length; i++) {
-                sum += Math.pow(a[i] - b[i], 2);
-            }
-            return Math.sqrt(sum);
+        let matches = [];
+        let lastData = [];
+        let allYears = [];
+        let selectedYears = [];
+        const scoreRanges = [
+            '120-129', '130-139', '140-149', '150-159', '160-169', '170-179', 
+            '180-189', '190-199', '200-210', '210-220', '220-230', '230-300'
+        ];
+
+        function toggleTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.className = theme;
+            localStorage.setItem('theme', theme);
         }
 
-        // Function to calculate Cosine Similarity
-        function cosineSimilarity(a, b) {
-            let dotProduct = 0;
-            let magnitudeA = 0;
-            let magnitudeB = 0;
-            for (let i = 0; i < a.length; i++) {
-                dotProduct += a[i] * b[i];
-                magnitudeA += Math.pow(a[i], 2);
-                magnitudeB += Math.pow(b[i], 2);
-            }
-            magnitudeA = Math.sqrt(magnitudeA);
-            magnitudeB = Math.sqrt(magnitudeB);
-            return dotProduct / (magnitudeA * magnitudeB);
-        }
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme') || 'classic-mode';
+            document.getElementById('themeSelect').value = savedTheme;
+            document.body.className = savedTheme;
+            loadGoogleSpreadsheet();
+        };
 
-        // Function to process the Excel file
-        function processExcel(file, scores) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-                // Calculate Euclidean Distance and Cosine Similarity
-                const euclideanResults = [];
-                const cosineResults = [];
-
-                jsonData.forEach(row => {
-                    const matchScores = [];
-                    for (let i = 1; i <= 20; i++) {
-                        const score = row[`${i}over`].split('/');
-                        matchScores.push(parseInt(score[0])); // Use only runs for similarity
-                    }
-
-                    const euclideanDist = euclideanDistance(scores, matchScores);
-                    const cosineSim = cosineSimilarity(scores, matchScores);
-
-                    euclideanResults.push({ distance: euclideanDist, row });
-                    cosineResults.push({ similarity: cosineSim, row });
+        function loadGoogleSpreadsheet() {
+            const url = 'https://raw.githubusercontent.com/jayy1704/cricanalyze/main/cricket_data.csv';
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    Papa.parse(data, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            matches = results.data;
+                            allYears = [...new Set(matches.map(match => match['year']))].sort((a, b) => a - b);
+                            selectedYears = allYears.map(String);
+                            document.getElementById('output').textContent = `Data loaded successfully! ${matches.length} matches found.`;
+                        }
+                    });
+                })
+                .catch(err => {
+                    document.getElementById('output').textContent = "Error loading data: " + err.message;
                 });
-
-                // Sort and get top 10 results
-                euclideanResults.sort((a, b) => a.distance - b.distance);
-                cosineResults.sort((a, b) => b.similarity - a.similarity);
-
-                const topEuclidean = euclideanResults.slice(0, 10);
-                const topCosine = cosineResults.slice(0, 10);
-
-                // Display results
-                displayResults('euclideanResults', topEuclidean);
-                displayResults('cosineResults', topCosine);
-            };
-            reader.readAsArrayBuffer(file);
         }
 
-        // Function to display results in the table
-        function displayResults(tableId, results) {
-            const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
-            table.innerHTML = '';
-            results.forEach(result => {
-                const row = table.insertRow();
-                const rowData = result.row;
-                const columns = ['6over', '10over', '15over', '20over', 'result', '26over', '30over', '35over', '40over'];
-                columns.forEach(col => {
-                    const cell = row.insertCell();
-                    cell.textContent = rowData[col];
+        function parseScore(scoreWickets) {
+            if (!scoreWickets) return [null, null];
+            const parts = scoreWickets.split('/');
+            if (parts.length !== 2) return [null, null];
+            const runs = parseInt(parts[0]);
+            const wickets = parseInt(parts[1]);
+            if (isNaN(runs) || isNaN(wickets) || wickets < 0 || wickets > 10) return [null, null];
+            return [runs, wickets];
+        }
+
+        function calculateDifferences(runsLater, wicketsLater, runsEarlier, wicketsEarlier) {
+            if (runsLater === null || wicketsLater === null || runsEarlier === null || wicketsEarlier === null) return null;
+            const runsDiff = runsLater - runsEarlier;
+            const wicketsDiff = wicketsLater - wicketsEarlier;
+            return `${runsDiff}/${wicketsDiff}`;
+        }
+
+        function calculateProbabilities(data) {
+            const validResults = data.filter(row => 
+                row['Result'].toLowerCase() === 'chased' || row['Result'].toLowerCase() === 'defend'
+            );
+            const totalValid = validResults.length;
+            if (totalValid === 0) return { chased: 0, defend: 0 };
+            const chasedCount = validResults.filter(row => row['Result'].toLowerCase() === 'chased').length;
+            const defendCount = validResults.filter(row => row['Result'].toLowerCase() === 'defend').length;
+            return {
+                chased: (chasedCount / totalValid * 100).toFixed(2),
+                defend: (defendCount / totalValid * 100).toFixed(2)
+            };
+        }
+
+        function processInput() {
+            const score6ov = document.getElementById('score6ov').value.trim();
+            const score10ov = document.getElementById('score10ov').value.trim();
+            const score15ov = document.getElementById('score15ov').value.trim();
+            const score20ov = document.getElementById('score20ov').value.trim();
+            const [runs6, wickets6] = parseScore(score6ov);
+            const [runs10, wickets10] = parseScore(score10ov);
+            const [runs15, wickets15] = parseScore(score15ov);
+            const [runs20, wickets20] = parseScore(score20ov);
+
+            if (!score6ov && !score10ov && !score15ov && !score20ov) {
+                document.getElementById('output').textContent = "Please enter at least one valid score/wickets (e.g., '20/1').";
+                return;
+            }
+
+            const inputScores = {
+                '6over': [runs6, wickets6],
+                '10over': [runs10, wickets10],
+                '15over': [runs15, wickets15],
+                '20over': [runs20, wickets20],
+                '10-6': calculateDifferences(runs10, wickets10, runs6, wickets6),
+                '15-10': calculateDifferences(runs15, wickets15, runs10, wickets10),
+                '15-6': calculateDifferences(runs15, wickets15, runs6, wickets6),
+                '20-6': calculateDifferences(runs20, wickets20, runs6, wickets6),
+                '20-10': calculateDifferences(runs20, wickets20, runs10, wickets10)
+            };
+
+            const matchedMatches = [];
+            matches.forEach(match => {
+                const matchScores = {
+                    '6over': match['6over'] ? match['6over'].split('/').map(Number) : [null, null],
+                    '10over': match['10over'] ? match['10over'].split('/').map(Number) : [null, null],
+                    '15over': match['15over'] ? match['15over'].split('/').map(Number) : [null, null],
+                    '20over': match['20over'] ? match['20over'].split('/').map(Number) : [null, null]
+                };
+                const matchDiffs = {
+                    '10-6': calculateDifferences(matchScores['10over'][0], matchScores['10over'][1], matchScores['6over'][0], matchScores['6over'][1]),
+                    '15-10': calculateDifferences(matchScores['15over'][0], matchScores['15over'][1], matchScores['10over'][0], matchScores['10over'][1]),
+                    '15-6': calculateDifferences(matchScores['15over'][0], matchScores['15over'][1], matchScores['6over'][0], matchScores['6over'][1]),
+                    '20-6': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['6over'][0], matchScores['6over'][1]),
+                    '20-10': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['10over'][0], matchScores['10over'][1])
+                };
+
+                let matchCount = 0;
+                const matchesAt = [];
+                const matchesWicketsAt = [];
+
+                for (const over in inputScores) {
+                    if (['6over', '10over', '15over', '20over'].includes(over)) {
+                        const [inputRuns, inputWickets] = inputScores[over];
+                        const [matchRuns, matchWickets] = matchScores[over];
+                        if (inputRuns !== null && matchRuns === inputRuns) {
+                            matchCount++;
+                            matchesAt.push(over);
+                            if (inputWickets !== null && matchWickets === inputWickets) {
+                                matchesWicketsAt.push(over);
+                            }
+                        }
+                    } else {
+                        const inputDiff = inputScores[over];
+                        const matchDiff = matchDiffs[over];
+                        if (inputDiff && matchDiff) {
+                            const [inputRunsDiff, inputWicketsDiff] = inputDiff.split('/').map(Number);
+                            const [matchRunsDiff, matchWicketsDiff] = matchDiff.split('/').map(Number);
+                            if (inputRunsDiff === matchRunsDiff) {
+                                matchCount++;
+                                matchesAt.push(over);
+                                if (inputWicketsDiff === matchWicketsDiff) {
+                                    matchesWicketsAt.push(over);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (matchCount > 0) {
+                    matchedMatches.push({
+                        match,
+                        matchCount,
+                        matchesAt,
+                        matchesWicketsAt,
+                        '6over': match['6over'] || 'N/A',
+                        '10over': match['10over'] || 'N/A',
+                        '15over': match['15over'] || 'N/A',
+                        '20over': match['20over'] || 'N/A',
+                        '10-6': matchDiffs['10-6'] || 'N/A',
+                        '15-10': matchDiffs['15-10'] || 'N/A',
+                        '15-6': matchDiffs['15-6'] || 'N/A',
+                        '20-6': matchDiffs['20-6'] || 'N/A',
+                        '20-10': matchDiffs['20-10'] || 'N/A',
+                        'Result': match['result'] || 'unknown'
+                    });
+                }
+            });
+
+            lastData = matchedMatches;
+            displayResults(matchedMatches);
+        }
+
+        function displayResults(data) {
+            const output = document.getElementById('output');
+            let html = `<p>Matches found: ${data.length}</p>`;
+            
+            if (data.length === 0) {
+                html += '<p>No matches found.</p>';
+            } else {
+                html += '<button id="viewDetailsBtn" onclick="viewFullMatchDetails()">View Full Details</button>';
+                html += '<div class="filter-group">';
+                html += '<button class="year-filter-btn" onclick="openYearFilterModal()">Filter Years</button>';
+                html += '<label for="matchFilter">Filter by Matches:</label>';
+                html += '<select id="matchFilter" onchange="applyFilters()">';
+                html += '<option value="">All Matches</option>';
+                for (let i = 1; i <= 9; i++) {
+                    html += `<option value="${i}">${i} Field${i > 1 ? 's' : ''} Match</option>`;
+                }
+                html += '</select>';
+                html += '<label for="scoreRangeFilter">20-Over Score Range:</label>';
+                html += '<select id="scoreRangeFilter" onchange="applyFilters()">';
+                html += '<option value="">All Ranges</option>';
+                scoreRanges.forEach(range => html += `<option value="${range}">${range}</option>`);
+                html += '</select>';
+                html += '</div>';
+
+                html += '<div class="table-container"><table><thead><tr>';
+                const headers = ['Year', '6ov', '10ov', '15ov', '20ov', '10-6', '15-10', '15-6', '20-6', '20-10', 'Result'];
+                headers.forEach(header => html += `<th>${header}</th>`);
+                html += '</tr></thead><tbody id="tableBody">';
+
+                html += generateTableRows(data);
+                html += '</tbody></table></div>';
+
+                const probabilities = calculateProbabilities(data);
+                html += `<p id="probability">Chased: ${probabilities.chased}% | Defended: ${probabilities.defend}%</p>`;
+            }
+
+            output.innerHTML = html;
+            document.getElementById('downloadBtn').disabled = data.length === 0;
+            document.getElementById('viewDetailsBtn').disabled = data.length === 0;
+            addSortFunctionality();
+        }
+
+        function generateTableRows(data) {
+            return data.map(row => `
+                <tr>
+                    <td>${row.match['year']}</td>
+                    <td class="${row.matchesAt.includes('6over') ? (row.matchesWicketsAt.includes('6over') ? 'match-6ov-wickets' : 'match-6ov') : ''}">${row['6over']}</td>
+                    <td class="${row.matchesAt.includes('10over') ? (row.matchesWicketsAt.includes('10over') ? 'match-10ov-wickets' : 'match-10ov') : ''}">${row['10over']}</td>
+                    <td class="${row.matchesAt.includes('15over') ? (row.matchesWicketsAt.includes('15over') ? 'match-15ov-wickets' : 'match-15ov') : ''}">${row['15over']}</td>
+                    <td class="${row.matchesAt.includes('20over') ? (row.matchesWicketsAt.includes('20over') ? 'match-20ov-wickets' : 'match-20ov') : ''}">${row['20over']}</td>
+                    <td class="${row.matchesAt.includes('10-6') ? (row.matchesWicketsAt.includes('10-6') ? 'match-10-6-wickets' : 'match-10-6') : ''}">${row['10-6']}</td>
+                    <td class="${row.matchesAt.includes('15-10') ? (row.matchesWicketsAt.includes('15-10') ? 'match-15-10-wickets' : 'match-15-10') : ''}">${row['15-10']}</td>
+                    <td class="${row.matchesAt.includes('15-6') ? (row.matchesWicketsAt.includes('15-6') ? 'match-15-6-wickets' : 'match-15-6') : ''}">${row['15-6']}</td>
+                    <td class="${row.matchesAt.includes('20-6') ? (row.matchesWicketsAt.includes('20-6') ? 'match-20-6-wickets' : 'match-20-6') : ''}">${row['20-6']}</td>
+                    <td class="${row.matchesAt.includes('20-10') ? (row.matchesWicketsAt.includes('20-10') ? 'match-20-10-wickets' : 'match-20-10') : ''}">${row['20-10']}</td>
+                    <td>${row['Result']}</td>
+                </tr>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const matchFilter = document.getElementById('matchFilter').value;
+            const scoreRangeFilter = document.getElementById('scoreRangeFilter').value;
+            const filteredData = lastData.filter(row => {
+                const yearMatch = selectedYears.length === 0 || selectedYears.includes(row.match['year'].toString());
+                const matchCountMatch = !matchFilter || row.matchCount === parseInt(matchFilter);
+                const rangeMatch = !scoreRangeFilter || (() => {
+                    const [runs] = (row['20over'] || '0/0').split('/').map(Number);
+                    const [min, max] = scoreRangeFilter.split('-').map(Number);
+                    return runs >= min && runs <= max;
+                })();
+                return yearMatch && matchCountMatch && rangeMatch;
+            });
+            document.getElementById('tableBody').innerHTML = generateTableRows(filteredData);
+            const probabilities = calculateProbabilities(filteredData);
+            document.getElementById('probability').innerHTML = 
+                `Chased: ${probabilities.chased}% | Defended: ${probabilities.defend}%`;
+            document.getElementById('viewDetailsBtn').disabled = filteredData.length === 0;
+            addSortFunctionality();
+        }
+
+        function addSortFunctionality() {
+            const table = document.querySelector('#output table');
+            if (!table) return;
+
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    const isAscending = header.dataset.sort !== 'asc';
+                    
+                    rows.sort((a, b) => {
+                        const aValue = a.cells[index].textContent;
+                        const bValue = b.cells[index].textContent;
+                        
+                        if (index === 0) { // Year column
+                            return isAscending ? 
+                                Number(aValue) - Number(bValue) : 
+                                Number(bValue) - Number(aValue);
+                        }
+                        
+                        if (index >= 1 && index <= 9) { // Score and difference columns
+                            const aNum = aValue === 'N/A' ? -Infinity : parseInt(aValue.split('/')[0]);
+                            const bNum = bValue === 'N/A' ? -Infinity : parseInt(bValue.split('/')[0]);
+                            return isAscending ? aNum - bNum : bNum - aNum;
+                        }
+                        
+                        return isAscending ? 
+                            aValue.localeCompare(bValue) : 
+                            bValue.localeCompare(aValue);
+                    });
+
+                    headers.forEach(h => delete h.dataset.sort);
+                    header.dataset.sort = isAscending ? 'asc' : 'desc';
+                    tbody.innerHTML = '';
+                    rows.forEach(row => tbody.appendChild(row));
                 });
             });
         }
 
-        // Handle form submission
-        document.getElementById('matchForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const file = document.getElementById('excelFile').files[0];
-            const scores = document.getElementById('scores').value.split(',').map(s => parseInt(s.trim().split('/')[0]));
+        function openYearFilterModal() {
+            const modal = document.getElementById('yearFilterModal');
+            const checkboxesDiv = document.getElementById('yearCheckboxes');
+            checkboxesDiv.innerHTML = allYears.map(year => `
+                <label class="year-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="${year}" 
+                        ${selectedYears.includes(year.toString()) ? 'checked' : ''}>${year}
+                </label>
+            `).join('');
+            modal.style.display = 'flex';
+        }
 
-            if (file && scores.length === 20) {
-                processExcel(file, scores);
+        function closeYearFilterModal() {
+            document.getElementById('yearFilterModal').style.display = 'none';
+        }
+
+        function applyYearFilter() {
+            const yearCheckboxes = document.querySelectorAll('.year-checkbox:checked');
+            selectedYears = Array.from(yearCheckboxes).map(cb => cb.value);
+            closeYearFilterModal();
+            applyFilters();
+        }
+
+        function viewFullMatchDetails() {
+            const modal = document.getElementById('fullDetailsModal');
+            const outputDiv = document.getElementById('fullDetailsOutput');
+            const filteredData = lastData.filter(row => {
+                const yearMatch = selectedYears.length === 0 || selectedYears.includes(row.match['year'].toString());
+                const matchFilter = document.getElementById('matchFilter').value;
+                const scoreRangeFilter = document.getElementById('scoreRangeFilter').value;
+                const matchCountMatch = !matchFilter || row.matchCount === parseInt(matchFilter);
+                const rangeMatch = !scoreRangeFilter || (() => {
+                    const [runs] = (row['20over'] || '0/0').split('/').map(Number);
+                    const [min, max] = scoreRangeFilter.split('-').map(Number);
+                    return runs >= min && runs <= max;
+                })();
+                return yearMatch && matchCountMatch && rangeMatch;
+            });
+
+            if (filteredData.length === 0) {
+                outputDiv.textContent = "No matches match the current filters.";
             } else {
-                alert('Please upload a valid Excel file and enter scores for 20 overs.');
+                const allKeys = [...new Set(filteredData.flatMap(row => Object.keys(row.match)))];
+                let html = '<table><thead><tr>' + allKeys.map(key => `<th>${key}</th>`).join('') + '</tr></thead><tbody>';
+                html += filteredData.map(row => '<tr>' + allKeys.map(key => `<td>${row.match[key] || 'N/A'}</td>`).join('') + '</tr>').join('');
+                html += '</tbody></table>';
+                outputDiv.innerHTML = html;
             }
-        });
+            modal.style.display = 'flex';
+            addModalSortFunctionality();
+        }
+
+        function addModalSortFunctionality() {
+            const table = document.querySelector('#fullDetailsOutput table');
+            if (!table) return;
+
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    const isAscending = header.dataset.sort !== 'asc';
+                    
+                    rows.sort((a, b) => {
+                        const aValue = a.cells[index].textContent;
+                        const bValue = b.cells[index].textContent;
+                        if (aValue.includes('/') && bValue.includes('/')) {
+                            const aNum = aValue === 'N/A' ? -Infinity : parseInt(aValue.split('/')[0]);
+                            const bNum = bValue === 'N/A' ? -Infinity : parseInt(bValue.split('/')[0]);
+                            return isAscending ? aNum - bNum : bNum - aNum;
+                        }
+                        return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                    });
+
+                    headers.forEach(h => delete h.dataset.sort);
+                    header.dataset.sort = isAscending ? 'asc' : 'desc';
+                    tbody.innerHTML = '';
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        }
+
+        function closeFullDetailsModal() {
+            document.getElementById('fullDetailsModal').style.display = 'none';
+        }
+
+        function resetForm() {
+            document.getElementById('score6ov').value = '';
+            document.getElementById('score10ov').value = '';
+            document.getElementById('score15ov').value = '';
+            document.getElementById('score20ov').value = '';
+            document.getElementById('output').textContent = "Enter scores to analyze matches.";
+            document.getElementById('downloadBtn').disabled = true;
+        }
+
+        function downloadResults() {
+            const filteredData = lastData.filter(row => {
+                const yearMatch = selectedYears.length === 0 || selectedYears.includes(row.match['year'].toString());
+                const matchFilter = document.getElementById('matchFilter').value;
+                const scoreRangeFilter = document.getElementById('scoreRangeFilter').value;
+                const matchCountMatch = !matchFilter || row.matchCount === parseInt(matchFilter);
+                const rangeMatch = !scoreRangeFilter || (() => {
+                    const [runs] = (row['20over'] || '0/0').split('/').map(Number);
+                    const [min, max] = scoreRangeFilter.split('-').map(Number);
+                    return runs >= min && runs <= max;
+                })();
+                return yearMatch && matchCountMatch && rangeMatch;
+            });
+
+            const wsData = filteredData.map(row => ({
+                Year: row.match['year'],
+                '6ov': row['6over'],
+                '10ov': row['10over'],
+                '15ov': row['15over'],
+                '20ov': row['20over'],
+                '10-6': row['10-6'],
+                '15-10': row['15-10'],
+                '15-6': row['15-6'],
+                '20-6': row['20-6'],
+                '20-10': row['20-10'],
+                Result: row['Result']
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, "Results");
+            XLSX.writeFile(wb, `Cricket_Match_Results_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
     </script>
 </body>
 </html>
