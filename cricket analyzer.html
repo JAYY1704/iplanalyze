@@ -264,10 +264,11 @@
         .match-15ov { background: #ffecb3; }
         .match-20ov { background: #f8bbd0; }
         .match-10-6 { background: #ffccbc; }
-        .match-15-10 { background: #dcedc8; }
+        .match-15-化妆 { background: #dcedc8; }
         .match-15-6 { background: #d1c4e9; }
         .match-20-6 { background: #b2dfdb; }
         .match-20-10 { background: #f0f4c3; }
+        .match-20-15 { background: #ffcc80; } /* New: 20-15 solid color */
         body.dark-mode .match-6ov { background: #4a90e2; }
         body.dark-mode .match-10ov { background: #66bb6a; }
         body.dark-mode .match-15ov { background: #ffa726; }
@@ -277,6 +278,7 @@
         body.dark-mode .match-15-6 { background: #7e57c2; }
         body.dark-mode .match-20-6 { background: #26a69a; }
         body.dark-mode .match-20-10 { background: #9ccc65; }
+        body.dark-mode .match-20-15 { background: #ff8f00; } /* New: 20-15 dark mode */
         .match-6ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #b3e5fc 50%); }
         .match-10ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #c8e6c9 50%); }
         .match-15ov-wickets { background: linear-gradient(to right, #ff6f61 50%, #ffecb3 50%); }
@@ -286,6 +288,7 @@
         .match-15-6-wickets { background: linear-gradient(to right, #ff6f61 50%, #d1c4e9 50%); }
         .match-20-6-wickets { background: linear-gradient(to right, #ff6f61 50%, #b2dfdb 50%); }
         .match-20-10-wickets { background: linear-gradient(to right, #ff6f61 50%, #f0f4c3 50%); }
+        .match-20-15-wickets { background: linear-gradient(to right, #ff6f61 50%, #ffcc80 50%); } /* New: 20-15 gradient */
         body.dark-mode .match-6ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #4a90e2 50%); }
         body.dark-mode .match-10ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #66bb6a 50%); }
         body.dark-mode .match-15ov-wickets { background: linear-gradient(to right, #d32f2f 50%, #ffa726 50%); }
@@ -295,6 +298,7 @@
         body.dark-mode .match-15-6-wickets { background: linear-gradient(to right, #d32f2f 50%, #7e57c2 50%); }
         body.dark-mode .match-20-6-wickets { background: linear-gradient(to right, #d32f2f 50%, #26a69a 50%); }
         body.dark-mode .match-20-10-wickets { background: linear-gradient(to right, #d32f2f 50%, #9ccc65 50%); }
+        body.dark-mode .match-20-15-wickets { background: linear-gradient(to right, #d32f2f 50%, #ff8f00 50%); } /* New: 20-15 dark mode gradient */
         .filter-group {
             display: flex;
             gap: 10px;
@@ -528,7 +532,8 @@
                 '15-10': calculateDifferences(runs15, wickets15, runs10, wickets10),
                 '15-6': calculateDifferences(runs15, wickets15, runs6, wickets6),
                 '20-6': calculateDifferences(runs20, wickets20, runs6, wickets6),
-                '20-10': calculateDifferences(runs20, wickets20, runs10, wickets10)
+                '20-10': calculateDifferences(runs20, wickets20, runs10, wickets10),
+                '20-15': calculateDifferences(runs20, wickets20, runs15, wickets15)
             };
 
             const matchedMatches = [];
@@ -544,7 +549,8 @@
                     '15-10': calculateDifferences(matchScores['15over'][0], matchScores['15over'][1], matchScores['10over'][0], matchScores['10over'][1]),
                     '15-6': calculateDifferences(matchScores['15over'][0], matchScores['15over'][1], matchScores['6over'][0], matchScores['6over'][1]),
                     '20-6': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['6over'][0], matchScores['6over'][1]),
-                    '20-10': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['10over'][0], matchScores['10over'][1])
+                    '20-10': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['10over'][0], matchScores['10over'][1]),
+                    '20-15': calculateDifferences(matchScores['20over'][0], matchScores['20over'][1], matchScores['15over'][0], matchScores['15over'][1])
                 };
 
                 let matchCount = 0;
@@ -594,6 +600,7 @@
                         '15-6': matchDiffs['15-6'] || 'N/A',
                         '20-6': matchDiffs['20-6'] || 'N/A',
                         '20-10': matchDiffs['20-10'] || 'N/A',
+                        '20-15': matchDiffs['20-15'] || 'N/A',
                         'Result': match['result'] || 'unknown'
                     });
                 }
@@ -616,7 +623,7 @@
                 html += '<label for="matchFilter">Filter by Matches:</label>';
                 html += '<select id="matchFilter" onchange="applyFilters()">';
                 html += '<option value="">All Matches</option>';
-                for (let i = 1; i <= 9; i++) {
+                for (let i = 1; i <= 10; i++) { // Updated to 10 fields
                     html += `<option value="${i}">${i} Field${i > 1 ? 's' : ''} Match</option>`;
                 }
                 html += '</select>';
@@ -628,7 +635,7 @@
                 html += '</div>';
 
                 html += '<div class="table-container"><table><thead><tr>';
-                const headers = ['Year', '6ov', '10ov', '15ov', '20ov', '10-6', '15-10', '15-6', '20-6', '20-10', 'Result'];
+                const headers = ['Year', '6ov', '10ov', '15ov', '20ov', '10-6', '15-10', '15-6', '20-6', '20-10', '20-15', 'Result'];
                 headers.forEach(header => html += `<th>${header}</th>`);
                 html += '</tr></thead><tbody id="tableBody">';
 
@@ -658,6 +665,7 @@
                     <td class="${row.matchesAt.includes('15-6') ? (row.matchesWicketsAt.includes('15-6') ? 'match-15-6-wickets' : 'match-15-6') : ''}">${row['15-6']}</td>
                     <td class="${row.matchesAt.includes('20-6') ? (row.matchesWicketsAt.includes('20-6') ? 'match-20-6-wickets' : 'match-20-6') : ''}">${row['20-6']}</td>
                     <td class="${row.matchesAt.includes('20-10') ? (row.matchesWicketsAt.includes('20-10') ? 'match-20-10-wickets' : 'match-20-10') : ''}">${row['20-10']}</td>
+                    <td class="${row.matchesAt.includes('20-15') ? (row.matchesWicketsAt.includes('20-15') ? 'match-20-15-wickets' : 'match-20-15') : ''}">${row['20-15']}</td>
                     <td>${row['Result']}</td>
                 </tr>
             `).join('');
@@ -705,7 +713,7 @@
                                 Number(bValue) - Number(aValue);
                         }
                         
-                        if (index >= 1 && index <= 9) { // Score and difference columns
+                        if (index >= 1 && index <= 10) { // Score and difference columns (updated to 10 for 20-15)
                             const aNum = aValue === 'N/A' ? -Infinity : parseInt(aValue.split('/')[0]);
                             const bNum = bValue === 'N/A' ? -Infinity : parseInt(bValue.split('/')[0]);
                             return isAscending ? aNum - bNum : bNum - aNum;
@@ -844,6 +852,7 @@
                 '15-6': row['15-6'],
                 '20-6': row['20-6'],
                 '20-10': row['20-10'],
+                '20-15': row['20-15'],
                 Result: row['Result']
             }));
 
